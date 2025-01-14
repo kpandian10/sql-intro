@@ -16,7 +16,13 @@
 -- | 2004 | St. Louis Cardinals           | 105       |
 
 
-SELECT year, name, MAX(wins)
-FROM teams
-WHERE year>=1960
-GROUP BY year;
+WITH team_wins AS (
+  SELECT year, name, wins,
+    RANK() OVER (PARTITION BY year ORDER BY wins DESC) as rank
+  FROM teams
+  WHERE year >= 1960
+)
+SELECT year, name, wins 
+FROM team_wins
+WHERE rank = 1
+ORDER BY wins DESC;
